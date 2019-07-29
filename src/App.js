@@ -1,26 +1,38 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { useState } from "react";
+import GeneralBoard from "./GeneralBoard";
+import SquadBoard from "./SquadBoard";
+import { DB_CONFIG } from "./config";
+import firebase from "firebase";
 
-function App() {
+const App = props => {
+  const [squad, setSquad] = useState(null);
+  const [squads, setSquads] = useState([]);
+
+  console.log("h");
+  if (!firebase.apps.length) firebase.initializeApp(DB_CONFIG);
+
+  const db = firebase.firestore();
+
+  let x = db.collection("tags").get();
+  console.log(x);
+
+  x.then(snap => {
+    console.log(snap);
+    let newSquads = [];
+    snap.forEach(x => newSquads.push({ ...x.data(), id: x.id }));
+    setSquads(newSquads);
+  }).catch(e => console.log(e));
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <>
+      {squads &&
+        (squad ? (
+          <SquadBoard squad={squad} handleCloseSquad={() => setSquad(null)} />
+        ) : (
+          <GeneralBoard squads={squads} handleGoToSquad={setSquad} />
+        ))}
+    </>
   );
-}
+};
 
 export default App;
