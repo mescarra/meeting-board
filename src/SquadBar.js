@@ -13,11 +13,12 @@ import { ChromePicker } from "react-color";
 import Popover from "@material-ui/core/Popover";
 
 import Button from "@material-ui/core/Button";
-import Dialog from '@material-ui/core/Dialog';
-import DialogActions from '@material-ui/core/DialogActions';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogContentText from '@material-ui/core/DialogContentText';
-import DialogTitle from '@material-ui/core/DialogTitle';
+import Dialog from "@material-ui/core/Dialog";
+import DialogActions from "@material-ui/core/DialogActions";
+import DialogContent from "@material-ui/core/DialogContent";
+import DialogContentText from "@material-ui/core/DialogContentText";
+import DialogTitle from "@material-ui/core/DialogTitle";
+import { Link as RouterLink, withRouter } from "react-router-dom";
 
 import db from "./Firebase";
 import { Tooltip, CircularProgress, Grid } from "@material-ui/core";
@@ -44,7 +45,7 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-export default function SquadBar({ squad, handleCloseSquad }) {
+const SquadBar = withRouter(({ squad, history }) => {
   const [readOnly, setReadOnly] = useState(true);
   const [name, setName] = useState(squad.name);
   const [color, setColor] = useState(squad.color);
@@ -76,7 +77,7 @@ export default function SquadBar({ squad, handleCloseSquad }) {
 
   const handleUpdate = () => {
     if (!readOnly)
-      db.editDocument("squads", squad.id, {name, color, location});
+      db.editDocument("squads", squad.id, { name, color, location });
 
     setReadOnly(!readOnly);
   };
@@ -86,9 +87,8 @@ export default function SquadBar({ squad, handleCloseSquad }) {
     db.deleteSquad(squad.id, () => {
       setDeleteDialogOpen(false);
       setLoading(false);
-      handleCloseSquad();
+      history.push("/");
     });
-    
   };
 
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -105,11 +105,12 @@ export default function SquadBar({ squad, handleCloseSquad }) {
       >
         <Toolbar>
           <IconButton
+            component={RouterLink}
+            to="/"
             edge="start"
             className={classes.marginRight}
             color="inherit"
             aria-label="back to general"
-            onClick={handleCloseSquad}
           >
             <MenuIcon />
           </IconButton>
@@ -158,7 +159,7 @@ export default function SquadBar({ squad, handleCloseSquad }) {
           >
             <ChromePicker color={color} onChange={handleColorChange} />
           </Popover>
-          <Tooltip title="Edit squad">
+          <Tooltip title={readOnly ? "Edit squad" : "Verify changes"}>
             <IconButton
               onClick={handleUpdate}
               color="inherit"
@@ -187,17 +188,25 @@ export default function SquadBar({ squad, handleCloseSquad }) {
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
       >
-        <DialogTitle id="alert-dialog-title">{"Do you really want to delete this squad?"}</DialogTitle>
+        <DialogTitle id="alert-dialog-title">
+          {"Do you really want to delete this squad?"}
+        </DialogTitle>
         <DialogContent>
-        { loading ? <CircularProgress color="secondary" /> :
-          <DialogContentText id="alert-dialog-description">
-            Deleting this squad will remove related tasks and properties from the database.
-            Are you sure you want to continue?
-          </DialogContentText>
-        } 
+          {loading ? (
+            <CircularProgress color="secondary" />
+          ) : (
+            <DialogContentText id="alert-dialog-description">
+              Deleting this squad will remove related tasks and properties from
+              the database. Are you sure you want to continue?
+            </DialogContentText>
+          )}
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setDeleteDialogOpen(false)} color="secondary" autoFocus>
+          <Button
+            onClick={() => setDeleteDialogOpen(false)}
+            color="secondary"
+            autoFocus
+          >
             Cancel
           </Button>
           <Button onClick={handleDelete} color="primary">
@@ -207,4 +216,6 @@ export default function SquadBar({ squad, handleCloseSquad }) {
       </Dialog>
     </div>
   );
-}
+});
+
+export default SquadBar;

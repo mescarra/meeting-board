@@ -1,6 +1,8 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import TagCard from "./TagCard";
 import GeneralBar from "./GeneralBar";
+import db from "./Firebase";
+
 const squadData = [
   {
     squad: "Dragon Glass",
@@ -92,10 +94,14 @@ const dataSort = (x, y) => {
   }
 };
 
-const GeneralBoard = ({ squads, handleGoToSquad }) => {
+const GeneralBoard = () => {
+  const [squads, setSquads] = useState([]);
+
+  useEffect(() => db.getCollection("squads", setSquads), []);
+
   return (
     <>
-      <GeneralBar squads={squads} handleGoToSquad={handleGoToSquad} />
+      <GeneralBar squads={squads} />
       {data.sort(dataSort).map((item, key) => (
         <TagCard key={key} tagName={item.tag} tasksPerSquad={item.squads} />
       ))}

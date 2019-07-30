@@ -1,4 +1,4 @@
-import React, { forwardRef, useState } from "react";
+import React, { forwardRef, useState, useEffect } from "react";
 import MaterialTable from "material-table";
 import AddBox from "@material-ui/icons/AddBox";
 import ArrowUpward from "@material-ui/icons/ArrowUpward";
@@ -18,6 +18,7 @@ import ViewColumn from "@material-ui/icons/ViewColumn";
 import Typography from "@material-ui/core/Typography";
 import { Card, CardContent } from "@material-ui/core";
 
+import db from "./Firebase";
 import SquadBar from "./SquadBar";
 import AddItem from "./AddItem";
 
@@ -45,7 +46,9 @@ const tableIcons = {
   ViewColumn: forwardRef((props, ref) => <ViewColumn {...props} ref={ref} />)
 };
 
-const SquadBoard = ({ squad, handleCloseSquad }) => {
+const SquadBoard = props => {
+  const [squad, setSquad] = useState(null);
+
   const [state, setState] = useState({
     columns: [
       { title: "Task", field: "name" },
@@ -61,55 +64,62 @@ const SquadBoard = ({ squad, handleCloseSquad }) => {
     ]
   });
 
+  useEffect(
+    () => db.getDocument("squads", props.match.params.id, setSquad),
+    []
+  );
+
   return (
-    <>
-      <SquadBar squad={squad} handleCloseSquad={handleCloseSquad} />
-      <Card style={{ overflow: "visible" }}>
-        <CardContent>
-          <Typography variant="h6">Add task</Typography>
-          <AddItem
-            onAddition={i => {
-              const data = [...state.data];
-              data.push(i);
-              console.log(data);
-              setState({ ...state, data });
-            }}
-          />
-        </CardContent>
-      </Card>
-      <br />
-      <MaterialTable
-        options={{
-          headerStyle: {
-            zIndex: 0
-          }
-        }}
-        icons={tableIcons}
-        title="Current Tasks"
-        columns={state.columns}
-        data={state.data}
-        editable={{
-          onRowUpdate: (newData, oldData) =>
-            new Promise(resolve => {
-              setTimeout(() => {
-                resolve();
+    squad && (
+      <>
+        <SquadBar squad={squad} />
+        <Card style={{ overflow: "visible" }}>
+          <CardContent>
+            <Typography variant="h6">Add task</Typography>
+            <AddItem
+              onAddition={i => {
                 const data = [...state.data];
-                data[data.indexOf(oldData)] = newData;
+                data.push(i);
+                console.log(data);
                 setState({ ...state, data });
-              }, 600);
-            }),
-          onRowDelete: oldData =>
-            new Promise(resolve => {
-              setTimeout(() => {
-                resolve();
-                const data = [...state.data];
-                data.splice(data.indexOf(oldData), 1);
-                setState({ ...state, data });
-              }, 600);
-            })
-        }}
-      />
-    </>
+              }}
+            />
+          </CardContent>
+        </Card>
+        <br />
+        <MaterialTable
+          options={{
+            headerStyle: {
+              zIndex: 0
+            }
+          }}
+          icons={tableIcons}
+          title="Current Tasks"
+          columns={state.columns}
+          data={state.data}
+          editable={{
+            onRowUpdate: (newData, oldData) =>
+              new Promise(resolve => {
+                setTimeout(() => {
+                  resolve();
+                  const data = [...state.data];
+                  data[data.indexOf(oldData)] = newData;
+                  setState({ ...state, data });
+                }, 600);
+              }),
+            onRowDelete: oldData =>
+              new Promise(resolve => {
+                setTimeout(() => {
+                  resolve();
+                  const data = [...state.data];
+                  data.splice(data.indexOf(oldData), 1);
+                  setState({ ...state, data });
+                }, 600);
+              })
+          }}
+        />
+      </>
+    )
   );
 };
 

@@ -1,23 +1,14 @@
 import React, { useState } from "react";
 import GeneralBoard from "./GeneralBoard";
 import SquadBoard from "./SquadBoard";
-import db from "./Firebase";
+import { BrowserRouter as Router, Route } from "react-router-dom";
 
 const App = props => {
-  const [squad, setSquad] = useState(null);
-  const [squads, setSquads] = useState(null);
-
-  db.getCollection("squads", setSquads)
-
   return (
-    <>
-      {squads &&
-        (squad ? (
-          <SquadBoard squad={squad} handleCloseSquad={() => setSquad(null)} />
-        ) : (
-          <GeneralBoard squads={squads} handleGoToSquad={setSquad} />
-        ))}
-    </>
+    <Router>
+      <Route path="/" exact component={GeneralBoard} />
+      <Route path="/squads/:id" component={SquadBoard} />
+    </Router>
   );
 };
 

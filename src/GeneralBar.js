@@ -6,10 +6,17 @@ import Typography from "@material-ui/core/Typography";
 import IconButton from "@material-ui/core/IconButton";
 import MenuIcon from "@material-ui/icons/MoreVert";
 import AddIcon from "@material-ui/icons/Add";
-import MenuItem from "@material-ui/core/MenuItem";
 import Menu from "@material-ui/core/Menu";
 import { withStyles } from "@material-ui/core/styles";
-import { Divider, Tooltip, CircularProgress } from "@material-ui/core";
+import {
+  Divider,
+  Tooltip,
+  CircularProgress,
+  List,
+  ListItem,
+  ListItemText
+} from "@material-ui/core";
+import { Link as RouterLink, withRouter } from "react-router-dom";
 import db from "./Firebase";
 
 const StyledMenu = withStyles({
@@ -44,7 +51,7 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-const GeneralBar = ({ squads, handleGoToSquad }) => {
+const GeneralBar = withRouter(({ squads, history }) => {
   const classes = useStyles();
   const [anchorEl, setAnchorEl] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -64,11 +71,11 @@ const GeneralBar = ({ squads, handleGoToSquad }) => {
       location: "Nowhere, Neverland",
       tasks: []
     };
-    db.addDocument("squads", newSquad, (id) => {
+    db.addDocument("squads", newSquad, id => {
       setLoading(false);
-      handleGoToSquad({id, ...newSquad});
+      history.push("/squads/" + id);
     });
-  }
+  };
 
   return (
     <AppBar position="static">
@@ -88,11 +95,18 @@ const GeneralBar = ({ squads, handleGoToSquad }) => {
             Squads
           </Typography>
           <Divider />
-          {squads.map(sq => (
-            <MenuItem key={sq.id} onClick={() => handleGoToSquad(sq)}>
-              {sq.name}
-            </MenuItem>
-          ))}
+          <List>
+            {squads.map(sq => (
+              <ListItem
+                key={sq.id}
+                button
+                component={RouterLink}
+                to={"/squads/" + sq.id}
+              >
+                <ListItemText>{sq.name}</ListItemText>
+              </ListItem>
+            ))}
+          </List>
         </StyledMenu>
         <Tooltip title="Squad list">
           <IconButton
@@ -105,13 +119,21 @@ const GeneralBar = ({ squads, handleGoToSquad }) => {
           </IconButton>
         </Tooltip>
         <Tooltip title="Add new squad">
-          <IconButton color="inherit" aria-label="Add new squad" onClick={handleAddNew}>
-            { loading ? <CircularProgress color="secondary" size={24} /> : <AddIcon /> }
+          <IconButton
+            color="inherit"
+            aria-label="Add new squad"
+            onClick={handleAddNew}
+          >
+            {loading ? (
+              <CircularProgress color="secondary" size={24} />
+            ) : (
+              <AddIcon />
+            )}
           </IconButton>
         </Tooltip>
       </Toolbar>
     </AppBar>
   );
-};
+});
 
 export default GeneralBar;
