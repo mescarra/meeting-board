@@ -6,42 +6,51 @@ import IconButton from "@material-ui/core/IconButton";
 import MenuIcon from "@material-ui/icons/ArrowBack";
 import EditIcon from "@material-ui/icons/Edit";
 import CheckIcon from "@material-ui/icons/Check";
+import DeleteIcon from "@material-ui/icons/Delete";
 import ColorIcon from "@material-ui/icons/ColorLens";
 import TextField from "@material-ui/core/TextField";
 import { ChromePicker } from "react-color";
 import Popover from "@material-ui/core/Popover";
 
-export default function SquadBoard({ squad, handleCloseSquad }) {
+import Button from "@material-ui/core/Button";
+import Dialog from '@material-ui/core/Dialog';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogContentText from '@material-ui/core/DialogContentText';
+import DialogTitle from '@material-ui/core/DialogTitle';
+
+import db from "./Firebase";
+import { Tooltip, CircularProgress, Grid } from "@material-ui/core";
+
+const useStyles = makeStyles(theme => ({
+  root: {
+    flexGrow: 1
+  },
+  marginRight: {
+    marginRight: theme.spacing(2)
+  },
+  marginLeft: {
+    marginLeft: theme.spacing(2)
+  },
+  title: {
+    flexGrow: 1
+  },
+  marginBottom: {
+    marginBottom: theme.spacing(2)
+  },
+  card: {
+    width: "fit-content",
+    margin: theme.spacing(2)
+  }
+}));
+
+export default function SquadBar({ squad, handleCloseSquad }) {
   const [readOnly, setReadOnly] = useState(true);
   const [name, setName] = useState(squad.name);
   const [color, setColor] = useState(squad.color);
   const [location, setLocation] = useState(squad.location);
+  const [loading, setLoading] = useState(false);
 
-  const useStyles = makeStyles(theme => ({
-    root: {
-      flexGrow: 1
-    },
-    marginRight: {
-      marginRight: theme.spacing(2)
-    },
-    marginLeft: {
-      marginLeft: theme.spacing(2)
-    },
-    title: {
-      flexGrow: 1
-    },
-    topbar: {
-      backgroundColor: color,
-      marginBottom: theme.spacing(2)
-    },
-    marginBottom: {
-      marginBottom: theme.spacing(2)
-    },
-    card: {
-      width: "fit-content",
-      margin: theme.spacing(2)
-    }
-  }));
   const classes = useStyles();
 
   const inputProps = {
@@ -64,6 +73,25 @@ export default function SquadBoard({ squad, handleCloseSquad }) {
   function handleClosePopover() {
     setAnchorEl(null);
   }
+
+  const handleUpdate = () => {
+    if (!readOnly)
+      db.editDocument("squads", squad.id, {name, color, location});
+
+    setReadOnly(!readOnly);
+  };
+
+  const handleDelete = () => {
+    setLoading(true);
+    db.deleteSquad(squad.id, () => {
+      setDeleteDialogOpen(false);
+      setLoading(false);
+      handleCloseSquad();
+    });
+    
+  };
+
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
   const open = Boolean(anchorEl);
   const id = open ? "simple-popover" : undefined;
@@ -130,16 +158,53 @@ export default function SquadBoard({ squad, handleCloseSquad }) {
           >
             <ChromePicker color={color} onChange={handleColorChange} />
           </Popover>
-          <IconButton
-            onClick={() => setReadOnly(!readOnly)}
-            color="inherit"
-            aria-label="edit squad"
-            className={classes.marginLeft}
-          >
-            {readOnly ? <EditIcon /> : <CheckIcon />}
-          </IconButton>
+          <Tooltip title="Edit squad">
+            <IconButton
+              onClick={handleUpdate}
+              color="inherit"
+              aria-label="edit squad"
+              className={classes.marginLeft}
+            >
+              {readOnly ? <EditIcon /> : <CheckIcon />}
+            </IconButton>
+          </Tooltip>
+          <Tooltip title="Delete squad">
+            <IconButton
+              onClick={() => setDeleteDialogOpen(true)}
+              color="inherit"
+              aria-label="delete squad"
+              className={classes.marginLeft}
+            >
+              <DeleteIcon />
+            </IconButton>
+          </Tooltip>
         </Toolbar>
       </AppBar>
+
+      <Dialog
+        open={deleteDialogOpen}
+        onClose={() => setDeleteDialogOpen(false)}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title">{"Do you really want to delete this squad?"}</DialogTitle>
+        <DialogContent>
+        { loading ? <CircularProgress color="secondary" /> :
+          <DialogContentText id="alert-dialog-description">
+            Deleting this squad will remove related tasks and properties from the database.
+            Are you sure you want to continue?
+          </DialogContentText>
+        } 
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setDeleteDialogOpen(false)} color="secondary" autoFocus>
+            Cancel
+          </Button>
+          <Button onClick={handleDelete} color="primary">
+            Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 }

@@ -9,7 +9,8 @@ import AddIcon from "@material-ui/icons/Add";
 import MenuItem from "@material-ui/core/MenuItem";
 import Menu from "@material-ui/core/Menu";
 import { withStyles } from "@material-ui/core/styles";
-import { Divider, Tooltip } from "@material-ui/core";
+import { Divider, Tooltip, CircularProgress } from "@material-ui/core";
+import db from "./Firebase";
 
 const StyledMenu = withStyles({
   paper: {
@@ -21,11 +22,11 @@ const StyledMenu = withStyles({
     getContentAnchorEl={null}
     anchorOrigin={{
       vertical: "bottom",
-      horizontal: "center"
+      horizontal: "right"
     }}
     transformOrigin={{
       vertical: "top",
-      horizontal: "center"
+      horizontal: "right"
     }}
     {...props}
   />
@@ -46,6 +47,7 @@ const useStyles = makeStyles(theme => ({
 const GeneralBar = ({ squads, handleGoToSquad }) => {
   const classes = useStyles();
   const [anchorEl, setAnchorEl] = useState(null);
+  const [loading, setLoading] = useState(false);
   const handleClose = () => {
     setAnchorEl(null);
   };
@@ -54,20 +56,23 @@ const GeneralBar = ({ squads, handleGoToSquad }) => {
     setAnchorEl(event.currentTarget);
   };
 
+  const handleAddNew = () => {
+    setLoading(true);
+    const newSquad = {
+      name: "New Squad",
+      color: "#000000",
+      location: "Nowhere, Neverland",
+      tasks: []
+    };
+    db.addDocument("squads", newSquad, (id) => {
+      setLoading(false);
+      handleGoToSquad({id, ...newSquad});
+    });
+  }
+
   return (
     <AppBar position="static">
       <Toolbar>
-        <Tooltip title="Squad list">
-          <IconButton
-            edge="start"
-            className={classes.menuButton}
-            color="inherit"
-            aria-label="Menu"
-            onClick={handleClick}
-          >
-            <MenuIcon />
-          </IconButton>
-        </Tooltip>
         <Typography variant="h6" className={classes.title}>
           General
         </Typography>
@@ -89,9 +94,19 @@ const GeneralBar = ({ squads, handleGoToSquad }) => {
             </MenuItem>
           ))}
         </StyledMenu>
+        <Tooltip title="Squad list">
+          <IconButton
+            className={classes.menuButton}
+            color="inherit"
+            aria-label="Menu"
+            onClick={handleClick}
+          >
+            <MenuIcon />
+          </IconButton>
+        </Tooltip>
         <Tooltip title="Add new squad">
-          <IconButton color="inherit" aria-label="Add new squad">
-            <AddIcon />
+          <IconButton color="inherit" aria-label="Add new squad" onClick={handleAddNew}>
+            { loading ? <CircularProgress color="secondary" size={24} /> : <AddIcon /> }
           </IconButton>
         </Tooltip>
       </Toolbar>
