@@ -3,7 +3,8 @@ import firebase from "firebase";
 
 class Firebase {
   constructor() {
-    if (!firebase.apps.length) this.app = firebase.initializeApp(DB_CONFIG);
+    if (!firebase.apps.length)
+      this.app = firebase.initializeApp(DB_CONFIG);
 
     this.db = firebase.firestore();
   }
@@ -55,14 +56,6 @@ class Firebase {
       });
   }
 
-  deleteSquad(id, callback) {
-    this.getDocument("squads", id, squad => {
-      squad.tasks.forEach(docRef => {
-        this.deleteDocument("tasks", docRef.id, () => 0);
-      });
-      this.deleteDocument("squads", id, callback);
-    });
-  }
 }
 
 const instance = new Firebase();

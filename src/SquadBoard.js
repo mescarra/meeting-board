@@ -48,26 +48,50 @@ const tableIcons = {
 
 const SquadBoard = props => {
   const [squad, setSquad] = useState(null);
-
-  const [state, setState] = useState({
-    columns: [
-      { title: "Task", field: "name" },
-      { title: "Tags", field: "tags" },
-      { title: "Completed", field: "completed", type: "numeric" }
-    ],
-    data: [
-      {
-        name: "SI Jobs",
-        tags: '"Pershing Integrations", "DB Locking"',
-        completed: 60
-      }
-    ]
-  });
+  const id = props.match.params.id;
+  const columns = [
+    { title: "Task", field: "name" },
+    { title: "Tags", field: "tags" },
+    { title: "Completed", field: "completed", type: "numeric" }
+  ];
 
   useEffect(
-    () => db.getDocument("squads", props.match.params.id, setSquad),
+    () => db.getDocument("squads", id, setSquad),
     []
   );
+
+  const taskToRow = (task) => {
+    return ({...task, tags: task.tags.toString(",")});
+  }
+
+  const rowToTask = (row) => {
+    return ({...row, tags: row.tags.split(",")});
+  }
+
+  const updateRow = (oldRow, newRow) => {
+    const tasks = squad.tasks;
+    const index = tasks.findIndex(x=>x.name === oldRow.name);
+
+    if (newRow){
+      const newTask = rowToTask(newRow);
+      tasks[index] = newTask;
+    } else {
+      tasks.splice(index, 1);
+    }
+
+    const newSquad = {...squad, tasks: tasks};
+    db.editDocument("squads", id, newSquad);
+    setSquad(newSquad);
+  };
+
+  const addRow = (row) => {
+    if (squad.tasks.filter(x=>x.name === row.name).length === 0)
+    {
+      const newSquad = {...squad, tasks: [...squad.tasks, rowToTask(row)]};
+      db.editDocument("squads", id, newSquad);
+      setSquad(newSquad);
+    }
+  };
 
   return (
     squad && (
@@ -76,13 +100,7 @@ const SquadBoard = props => {
         <Card style={{ overflow: "visible" }}>
           <CardContent>
             <Typography variant="h6">Add task</Typography>
-            <AddItem
-              onAddition={i => {
-                const data = [...state.data];
-                data.push(i);
-                console.log(data);
-                setState({ ...state, data });
-              }}
+            <AddItem onAddition={addRow}
             />
           </CardContent>
         </Card>
@@ -95,26 +113,18 @@ const SquadBoard = props => {
           }}
           icons={tableIcons}
           title="Current Tasks"
-          columns={state.columns}
-          data={state.data}
+          columns={columns}
+          data={squad.tasks.map(taskToRow)}
           editable={{
             onRowUpdate: (newData, oldData) =>
               new Promise(resolve => {
-                setTimeout(() => {
                   resolve();
-                  const data = [...state.data];
-                  data[data.indexOf(oldData)] = newData;
-                  setState({ ...state, data });
-                }, 600);
+                  updateRow(oldData, newData);
               }),
             onRowDelete: oldData =>
               new Promise(resolve => {
-                setTimeout(() => {
                   resolve();
-                  const data = [...state.data];
-                  data.splice(data.indexOf(oldData), 1);
-                  setState({ ...state, data });
-                }, 600);
+                  updateRow(oldData);
               })
           }}
         />

@@ -84,7 +84,7 @@ const SquadBar = withRouter(({ squad, history }) => {
 
   const handleDelete = () => {
     setLoading(true);
-    db.deleteSquad(squad.id, () => {
+    db.deleteDocument("squads", squad.id, () => {
       setDeleteDialogOpen(false);
       setLoading(false);
       history.push("/");

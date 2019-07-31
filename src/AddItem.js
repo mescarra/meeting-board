@@ -66,6 +66,9 @@ const AddItem = props => {
             tags: csv,
             completed: completed.length > 0 ? completed : 0
           });
+          setDescription("");
+          setCompleted("");
+          setTags([]);
         }
       }}
     >
