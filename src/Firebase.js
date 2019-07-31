@@ -3,8 +3,7 @@ import firebase from "firebase";
 
 class Firebase {
   constructor() {
-    if (!firebase.apps.length)
-      this.app = firebase.initializeApp(DB_CONFIG);
+    if (!firebase.apps.length) this.app = firebase.initializeApp(DB_CONFIG);
 
     this.db = firebase.firestore();
   }
@@ -15,7 +14,7 @@ class Firebase {
       .doc(id)
       .get()
       .then(doc => {
-        callback({ ...doc.data(), id });
+        callback(doc.data());
       });
   }
 
@@ -55,7 +54,6 @@ class Firebase {
         callback();
       });
   }
-
 }
 
 const instance = new Firebase();

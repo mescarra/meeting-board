@@ -45,7 +45,7 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-const SquadBar = withRouter(({ squad, history }) => {
+const SquadBar = withRouter(({ id, squad, history }) => {
   const [readOnly, setReadOnly] = useState(true);
   const [name, setName] = useState(squad.name);
   const [color, setColor] = useState(squad.color);
@@ -76,15 +76,14 @@ const SquadBar = withRouter(({ squad, history }) => {
   }
 
   const handleUpdate = () => {
-    if (!readOnly)
-      db.editDocument("squads", squad.id, { name, color, location });
+    if (!readOnly) db.editDocument("squads", id, { name, color, location });
 
     setReadOnly(!readOnly);
   };
 
   const handleDelete = () => {
     setLoading(true);
-    db.deleteDocument("squads", squad.id, () => {
+    db.deleteDocument("squads", id, () => {
       setDeleteDialogOpen(false);
       setLoading(false);
       history.push("/");
@@ -94,7 +93,7 @@ const SquadBar = withRouter(({ squad, history }) => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
   const open = Boolean(anchorEl);
-  const id = open ? "simple-popover" : undefined;
+  const popoverId = open ? "simple-popover" : undefined;
 
   return (
     <div className={classes.root}>
@@ -144,7 +143,7 @@ const SquadBar = withRouter(({ squad, history }) => {
             </IconButton>
           )}
           <Popover
-            id={id}
+            id={popoverId}
             open={open}
             anchorEl={anchorEl}
             onClose={handleClosePopover}

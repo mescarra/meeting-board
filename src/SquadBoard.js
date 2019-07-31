@@ -55,53 +55,50 @@ const SquadBoard = props => {
     { title: "Completed", field: "completed", type: "numeric" }
   ];
 
-  useEffect(
-    () => db.getDocument("squads", id, setSquad),
-    []
-  );
+  useEffect(() => db.getDocument("squads", id, setSquad), []);
 
-  const taskToRow = (task) => {
-    return ({...task, tags: task.tags.toString(",")});
-  }
+  const taskToRow = task => {
+    return { ...task, tags: task.tags.toString(",") };
+  };
 
-  const rowToTask = (row) => {
-    return ({...row, tags: row.tags.split(",")});
-  }
+  const rowToTask = row => {
+    return { ...row, tags: row.tags.split(",") };
+  };
 
   const updateRow = (oldRow, newRow) => {
     const tasks = squad.tasks;
-    const index = tasks.findIndex(x=>x.name === oldRow.name);
+    const index = tasks.findIndex(x => x.name === oldRow.name);
 
-    if (newRow){
+    if (newRow) {
       const newTask = rowToTask(newRow);
       tasks[index] = newTask;
     } else {
       tasks.splice(index, 1);
     }
 
-    const newSquad = {...squad, tasks: tasks};
+    const newSquad = { ...squad, tasks: tasks };
     db.editDocument("squads", id, newSquad);
     setSquad(newSquad);
   };
 
-  const addRow = (row) => {
-    if (squad.tasks.filter(x=>x.name === row.name).length === 0)
-    {
-      const newSquad = {...squad, tasks: [...squad.tasks, rowToTask(row)]};
+  const addRow = row => {
+    if (squad.tasks.filter(x => x.name === row.name).length === 0) {
+      const newSquad = { ...squad, tasks: [...squad.tasks, rowToTask(row)] };
       db.editDocument("squads", id, newSquad);
       setSquad(newSquad);
+      return true;
     }
+    return false;
   };
 
   return (
     squad && (
       <>
-        <SquadBar squad={squad} />
+        <SquadBar id={id} squad={squad} />
         <Card style={{ overflow: "visible" }}>
           <CardContent>
             <Typography variant="h6">Add task</Typography>
-            <AddItem onAddition={addRow}
-            />
+            <AddItem onAddition={addRow} />
           </CardContent>
         </Card>
         <br />
@@ -118,13 +115,13 @@ const SquadBoard = props => {
           editable={{
             onRowUpdate: (newData, oldData) =>
               new Promise(resolve => {
-                  resolve();
-                  updateRow(oldData, newData);
+                resolve();
+                updateRow(oldData, newData);
               }),
             onRowDelete: oldData =>
               new Promise(resolve => {
-                  resolve();
-                  updateRow(oldData);
+                resolve();
+                updateRow(oldData);
               })
           }}
         />

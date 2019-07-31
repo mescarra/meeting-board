@@ -3,45 +3,6 @@ import TagCard from "./TagCard";
 import GeneralBar from "./GeneralBar";
 import db from "./Firebase";
 
-const squadData = [
-  {
-    squad: "Dragon Glass",
-    color: "#487ba6",
-    tasks: [
-      {
-        name: "Enrollment Views: Focus MGMT & Hidden Content",
-        tags: ["ADA Compliance"],
-        completed: 100
-      },
-      {
-        name: "Enrollment Views: Inputs",
-        tags: ["ADA Compliance"],
-        completed: 40
-      },
-      {
-        name: "SI Job",
-        tags: ["Pershing Integrations", "DB Locking"],
-        completed: 80
-      }
-    ]
-  },
-  {
-    squad: "Viridian",
-    color: "#219196",
-    tasks: [
-      {
-        name: "Managed Investments",
-        tags: ["Pershing Integrations"],
-        completed: 90
-      },
-      {
-        name: "Other Task",
-        tags: ["Pershing Integrations", "DB Locking"]
-      }
-    ]
-  }
-];
-
 const tagsFromData = data => {
   const conc = xss => xss.reduce((x, y) => x.concat(y));
   let a = conc(conc(data.map(x => x.tasks.map(y => y.tags))));
@@ -67,7 +28,7 @@ const squadDataToTagData = data => {
       }
       if (newTasks.length > 0)
         newSquads.push({
-          name: squad.squad,
+          name: squad.name,
           color: squad.color,
           tasks: newTasks
         });
@@ -81,8 +42,6 @@ const squadDataToTagData = data => {
   return newData;
 };
 
-const data = squadDataToTagData(squadData);
-
 const taskCount = tag =>
   tag.squads.map(x => x.tasks.length).reduce((a, b) => a + b, 0);
 
@@ -95,17 +54,26 @@ const dataSort = (x, y) => {
 };
 
 const GeneralBoard = () => {
-  const [squads, setSquads] = useState([]);
+  const [squads, setSquads] = useState(null);
+  const [tagData, setTagData] = useState([]);
 
-  useEffect(() => db.getCollection("squads", setSquads), []);
+  const handleGet = squads => {
+    setSquads(squads);
+    const tagData = squadDataToTagData(squads);
+    setTagData(tagData);
+  };
+
+  useEffect(() => db.getCollection("squads", handleGet), []);
 
   return (
-    <>
-      <GeneralBar squads={squads} />
-      {data.sort(dataSort).map((item, key) => (
-        <TagCard key={key} tagName={item.tag} tasksPerSquad={item.squads} />
-      ))}
-    </>
+    squads && (
+      <>
+        <GeneralBar squads={squads} />
+        {tagData.sort(dataSort).map((item, key) => (
+          <TagCard key={key} tagName={item.tag} tasksPerSquad={item.squads} />
+        ))}
+      </>
+    )
   );
 };
 export default GeneralBoard;

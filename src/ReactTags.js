@@ -352,6 +352,7 @@ export default function ReactTags(props) {
       options={props.suggestions}
       components={components}
       onChange={props.handleChange}
+      value={props.value}
       isMulti
     />
   );
