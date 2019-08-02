@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import TagCard from "./TagCard";
 import GeneralBar from "./GeneralBar";
 import db from "./Firebase";
+import CircularProgress from "@material-ui/core/CircularProgress";
+import Grid from "@material-ui/core/Grid";
 
 const tagsFromData = data => {
   const conc = xss => xss.reduce((x, y) => x.concat(y));
@@ -65,15 +67,26 @@ const GeneralBoard = () => {
 
   useEffect(() => db.getCollection("squads", handleGet), []);
 
-  return (
-    squads && (
-      <>
-        <GeneralBar squads={squads} />
-        {tagData.sort(dataSort).map((item, key) => (
-          <TagCard key={key} tagName={item.tag} tasksPerSquad={item.squads} />
-        ))}
-      </>
-    )
+  return squads ? (
+    <>
+      <GeneralBar squads={squads} />
+      {tagData.sort(dataSort).map((item, key) => (
+        <TagCard key={key} tagName={item.tag} tasksPerSquad={item.squads} />
+      ))}
+    </>
+  ) : (
+    <Grid
+      container
+      spacing={0}
+      direction="column"
+      alignItems="center"
+      justify="center"
+      style={{ minHeight: "100vh" }}
+    >
+      <Grid item xs={3}>
+        <CircularProgress />
+      </Grid>
+    </Grid>
   );
 };
 export default GeneralBoard;

@@ -19,9 +19,9 @@ import DialogContent from "@material-ui/core/DialogContent";
 import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import { Link as RouterLink, withRouter } from "react-router-dom";
+import { Tooltip, CircularProgress, Grid } from "@material-ui/core";
 
 import db from "./Firebase";
-import { Tooltip, CircularProgress, Grid } from "@material-ui/core";
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -45,7 +45,7 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-const SquadBar = withRouter(({ id, squad, history }) => {
+const SquadBar = withRouter(({ id, squad, history, showMessage }) => {
   const [readOnly, setReadOnly] = useState(true);
   const [name, setName] = useState(squad.name);
   const [color, setColor] = useState(squad.color);
@@ -67,27 +67,50 @@ const SquadBar = withRouter(({ id, squad, history }) => {
 
   const [anchorEl, setAnchorEl] = useState(null);
 
-  function handleOpenPopover(event) {
+  const handleOpenPopover = event => {
     setAnchorEl(event.currentTarget);
-  }
+  };
 
-  function handleClosePopover() {
+  const handleClosePopover = () => {
     setAnchorEl(null);
-  }
+  };
+
+  const restoreNormality = () => {
+    setLoading(false);
+    setReadOnly(true);
+    setDeleteDialogOpen(false);
+  };
 
   const handleUpdate = () => {
-    if (!readOnly) db.editDocument("squads", id, { name, color, location });
-
-    setReadOnly(!readOnly);
+    if (!readOnly) {
+      setLoading(true);
+      db.editDocument("squads", id, { name, color, location })
+        .then(() => {
+          showMessage("Squad successfully updated!", "success");
+          restoreNormality();
+        })
+        .catch(error => {
+          showMessage("Error updating squad", "error");
+          console.error("Error updating squad: ", error);
+          restoreNormality();
+        });
+    } else {
+      setReadOnly(false);
+    }
   };
 
   const handleDelete = () => {
     setLoading(true);
-    db.deleteDocument("squads", id, () => {
-      setDeleteDialogOpen(false);
-      setLoading(false);
-      history.push("/");
-    });
+    db.deleteDocument("squads", id)
+      .then(() => {
+        restoreNormality();
+        history.push("/");
+      })
+      .catch(error => {
+        showMessage("Error deleting squad", "error");
+        console.error("Error deleting squad: ", error);
+        restoreNormality();
+      });
   };
 
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -163,9 +186,15 @@ const SquadBar = withRouter(({ id, squad, history }) => {
               onClick={handleUpdate}
               color="inherit"
               aria-label="edit squad"
-              className={classes.marginLeft}
+              className={readOnly ? classes.marginLeft : null}
             >
-              {readOnly ? <EditIcon /> : <CheckIcon />}
+              {readOnly ? (
+                <EditIcon />
+              ) : loading ? (
+                <CircularProgress color="secondary" size={24} />
+              ) : (
+                <CheckIcon />
+              )}
             </IconButton>
           </Tooltip>
           <Tooltip title="Delete squad">
@@ -173,7 +202,6 @@ const SquadBar = withRouter(({ id, squad, history }) => {
               onClick={() => setDeleteDialogOpen(true)}
               color="inherit"
               aria-label="delete squad"
-              className={classes.marginLeft}
             >
               <DeleteIcon />
             </IconButton>

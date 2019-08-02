@@ -17,10 +17,13 @@ import Search from "@material-ui/icons/Search";
 import ViewColumn from "@material-ui/icons/ViewColumn";
 import Typography from "@material-ui/core/Typography";
 import { Card, CardContent } from "@material-ui/core";
+import CircularProgress from "@material-ui/core/CircularProgress";
+import Grid from "@material-ui/core/Grid";
 
 import db from "./Firebase";
 import SquadBar from "./SquadBar";
 import AddItem from "./AddItem";
+import TempMessage from "./TempMessage";
 
 const tableIcons = {
   Add: forwardRef((props, ref) => <AddBox {...props} ref={ref} />),
@@ -48,6 +51,8 @@ const tableIcons = {
 
 const SquadBoard = props => {
   const [squad, setSquad] = useState(null);
+  const [activeMessage, setActiveMessage] = useState(null);
+  const [messageType, setMessageType] = useState("info");
   const id = props.match.params.id;
   const columns = [
     { title: "Task", field: "name" },
@@ -76,9 +81,7 @@ const SquadBoard = props => {
       tasks.splice(index, 1);
     }
 
-    const newSquad = { ...squad, tasks: tasks };
-    db.editDocument("squads", id, newSquad);
-    setSquad(newSquad);
+    return { ...squad, tasks: tasks };
   };
 
   const addRow = row => {
@@ -91,42 +94,78 @@ const SquadBoard = props => {
     return false;
   };
 
-  return (
-    squad && (
-      <>
-        <SquadBar id={id} squad={squad} />
-        <Card style={{ overflow: "visible" }}>
-          <CardContent>
-            <Typography variant="h6">Add task</Typography>
-            <AddItem onAddition={addRow} />
-          </CardContent>
-        </Card>
-        <br />
-        <MaterialTable
-          options={{
-            headerStyle: {
-              zIndex: 0
-            }
-          }}
-          icons={tableIcons}
-          title="Current Tasks"
-          columns={columns}
-          data={squad.tasks.map(taskToRow)}
-          editable={{
-            onRowUpdate: (newData, oldData) =>
-              new Promise(resolve => {
-                resolve();
-                updateRow(oldData, newData);
-              }),
-            onRowDelete: oldData =>
-              new Promise(resolve => {
-                resolve();
-                updateRow(oldData);
+  const showMessage = (msg, type) => {
+    setMessageType(type);
+    setActiveMessage(msg);
+  };
+
+  return squad ? (
+    <>
+      <TempMessage
+        open={Boolean(activeMessage)}
+        handleClose={() => setActiveMessage(null)}
+        variant={messageType}
+        message={activeMessage}
+      />
+      <SquadBar id={id} squad={squad} showMessage={showMessage} />
+      <Card style={{ overflow: "visible" }}>
+        <CardContent>
+          <Typography variant="h6">Add task</Typography>
+          <AddItem onAddition={addRow} />
+        </CardContent>
+      </Card>
+      <br />
+      <MaterialTable
+        options={{
+          headerStyle: {
+            zIndex: 0
+          }
+        }}
+        icons={tableIcons}
+        title="Current Tasks"
+        columns={columns}
+        data={squad.tasks.map(taskToRow)}
+        editable={{
+          onRowUpdate: (newData, oldData) => {
+            const newSquad = updateRow(oldData, newData);
+            return db
+              .editDocument("squads", id, newSquad)
+              .then(() => {
+                showMessage("Task successfully edited!", "success");
+                setSquad(newSquad);
               })
-          }}
-        />
-      </>
-    )
+              .catch(() => {
+                showMessage("Error editing task", "error");
+              });
+          },
+          onRowDelete: oldData => {
+            const newSquad = updateRow(oldData);
+            return db
+              .editDocument("squads", id, newSquad)
+              .then(() => {
+                showMessage("Task successfully deleted!", "success");
+                setSquad(newSquad);
+              })
+              .catch(() => {
+                showMessage("Error deleting task", "error");
+              });
+          }
+        }}
+      />
+    </>
+  ) : (
+    <Grid
+      container
+      spacing={0}
+      direction="column"
+      alignItems="center"
+      justify="center"
+      style={{ minHeight: "100vh" }}
+    >
+      <Grid item xs={3}>
+        <CircularProgress />
+      </Grid>
+    </Grid>
   );
 };
 

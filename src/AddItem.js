@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { makeStyles } from "@material-ui/core/styles";
-import { FormHelperText } from "@material-ui/core";
+import { FormHelperText, TextField } from "@material-ui/core";
 import Input from "@material-ui/core/Input";
 import FormControl from "@material-ui/core/FormControl";
 import InputLabel from "@material-ui/core/InputLabel";
@@ -51,7 +51,9 @@ const AddItem = props => {
 
   const [description, setDescription] = useState("");
   const [completed, setCompleted] = useState("");
+  const [completedError, setCompletedError] = useState(null);
   const [tags, setTags] = useState([]);
+  const [tagsError, setTagsError] = useState(null);
 
   const suggestionsFilter = (item, query) => {
     return (
@@ -60,65 +62,88 @@ const AddItem = props => {
     );
   };
 
+  const validateCompleted = newValue => {
+    var newNumber = parseInt(newValue);
+    if (newNumber >= 0 && newNumber <= 100) {
+      setCompletedError(null);
+    } else {
+      setCompletedError("Value must be between 0 and 100");
+    }
+    setCompleted(newValue);
+  };
+  const validateTags = newTags => {
+    if (newTags && newTags.length > 0) {
+      setTagsError(null);
+    } else {
+      setTagsError("Select one or more tags");
+    }
+    setTags(newTags);
+  };
+
+  const handleSubmit = e => {
+    e.preventDefault();
+    if (validateCompleted(completed) && validateTags(tags)) {
+      let csv = tags.map(x => x.label).toString();
+      if (
+        props.onAddition({
+          name: description,
+          tags: csv,
+          completed: parseInt(completed)
+        })
+      ) {
+        setDescription("");
+        setCompleted("");
+        setTags([]);
+      }
+    }
+  };
+
   return (
     suggestions && (
-      <form
-        onSubmit={e => {
-          e.preventDefault();
-          if (tags && tags.length > 0) {
-            let csv = tags.map(x => x.label).toString();
-            if (
-              props.onAddition({
-                name: description,
-                tags: csv,
-                completed: completed.length > 0 ? completed : 0
-              })
-            ) {
-              setDescription("");
-              setCompleted("");
-              setTags([]);
-            }
-          }
-        }}
-      >
+      <form onSubmit={handleSubmit}>
         <Grid container spacing={3} alignItems="center">
           <Grid item lg={3}>
-            <FormControl className={classes.formControl} required>
-              <InputLabel htmlFor="description">Description</InputLabel>
-              <Input
-                name="description"
+            <FormControl className={classes.formControl}>
+              <TextField
+                name="Description"
+                label="Description"
+                required
                 value={description}
+                helperText="Short description for identifying your task"
                 onChange={e => setDescription(e.target.value)}
               />
-              <FormHelperText>
-                Short description for identifying your task
-              </FormHelperText>
-            </FormControl>
-          </Grid>
-          <Grid item lg={3}>
-            <FormControl className={classes.formControl} required>
-              <ReactTags
-                value={tags}
-                handleChange={setTags}
-                suggestions={suggestions}
-                suggestionsFilter={suggestionsFilter}
-              />
-              <FormHelperText>Select one or more tags</FormHelperText>
             </FormControl>
           </Grid>
           <Grid item lg={3}>
             <FormControl className={classes.formControl}>
-              <InputLabel htmlFor="completed">Completed</InputLabel>
-              <Input
-                name="completed"
-                value={completed}
-                type="number"
-                min="0"
-                max="100"
-                step="1"
-                onChange={e => setCompleted(e.target.value)}
+              <ReactTags
+                value={tags}
+                error={tagsError}
+                label={tagsError ? tagsError : "Relevant work areas"}
+                handleChange={validateTags}
+                suggestions={suggestions}
+                suggestionsFilter={suggestionsFilter}
               />
-              <FormHelperText>Between 0 and 100</FormHelperText>
+            </FormControl>
+          </Grid>
+          <Grid item lg={3}>
+            <FormControl className={classes.formControl}>
+              <TextField
+                name="Completed"
+                label="Completed"
+                required
+                InputProps={{
+                  type: "number"
+                }}
+                value={completed}
+                helperText={
+                  completedError
+                    ? completedError
+                    : "Approximate completed percentage"
+                }
+                error={Boolean(completedError)}
+                onChange={e => validateCompleted(e.target.value)}
+              />
             </FormControl>
           </Grid>
           <Grid item lg={3}>

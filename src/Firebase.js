@@ -39,20 +39,17 @@ class Firebase {
   }
 
   editDocument(collection, id, doc) {
-    this.db
+    return this.db
       .collection(collection)
       .doc(id)
       .update(doc);
   }
 
-  deleteDocument(collection, id, callback) {
-    this.db
+  deleteDocument(collection, id) {
+    return this.db
       .collection(collection)
       .doc(id)
-      .delete()
-      .then(() => {
-        callback();
-      });
+      .delete();
   }
 }
 

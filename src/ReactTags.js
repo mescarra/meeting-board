@@ -342,13 +342,12 @@ export default function ReactTags(props) {
       styles={selectStyles}
       inputId="react-select-multiple"
       TextFieldProps={{
-        label: "Tags *",
-        InputLabelProps: {
-          htmlFor: "react-select-multiple",
-          shrink: true
-        }
+        label: "Tags",
+        helperText: props.label,
+        required: true,
+        error: Boolean(props.error)
       }}
-      placeholder={props.placeholder}
+      placeholder=""
       options={props.suggestions}
       components={components}
       onChange={props.handleChange}
