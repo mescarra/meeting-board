@@ -8,34 +8,19 @@ class Firebase {
     this.db = firebase.firestore();
   }
 
-  getDocument(collection, id, callback) {
-    this.db
+  getDocument(collection, id) {
+    return this.db
       .collection(collection)
       .doc(id)
-      .get()
-      .then(doc => {
-        callback(doc.data());
-      });
+      .get();
   }
 
-  getCollection(collection, callback) {
-    this.db
-      .collection(collection)
-      .get()
-      .then(snap => {
-        let data = [];
-        snap.forEach(x => data.push({ ...x.data(), id: x.id }));
-        callback(data);
-      });
+  getCollection(collection) {
+    return this.db.collection(collection).get();
   }
 
-  addDocument(collection, doc, callback) {
-    this.db
-      .collection(collection)
-      .add(doc)
-      .then(docRef => {
-        callback(docRef.id);
-      });
+  addDocument(collection, doc) {
+    return this.db.collection(collection).add(doc);
   }
 
   editDocument(collection, id, doc) {

@@ -2,8 +2,8 @@ import React, { useState } from "react";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import Grid from "@material-ui/core/Grid";
 
-const LoadingPage = ({ condition, children }) => {
-  return condition ? (
+const LoadingPage = () => {
+  return (
     <Grid
       container
       spacing={0}
@@ -16,8 +16,6 @@ const LoadingPage = ({ condition, children }) => {
         <CircularProgress />
       </Grid>
     </Grid>
-  ) : (
-    children
   );
 };
 

@@ -31,23 +31,32 @@ const AddItem = props => {
   const classes = useStyles();
   const [suggestions, setSuggestions] = useState(null);
 
-  useEffect(
-    () =>
-      db.getCollection("squads", squads => {
-        let tags = new Set();
-        squads.forEach(sq => {
-          sq.tasks.forEach(tk => {
-            tk.tags.forEach(tg => tags.add(tg));
-          });
-        });
-        const newSuggestions = Array.from(tags).map(suggestion => ({
-          label: suggestion,
-          value: suggestion
-        }));
-        setSuggestions(newSuggestions);
-      }),
-    []
-  );
+  const handleData = snap => {
+    let squads = [];
+    snap.forEach(x => squads.push({ ...x.data(), id: x.id }));
+
+    let tags = new Set();
+    squads.forEach(sq => {
+      sq.tasks.forEach(tk => {
+        tk.tags.forEach(tg => tags.add(tg));
+      });
+    });
+    const newSuggestions = Array.from(tags).map(suggestion => ({
+      label: suggestion,
+      value: suggestion
+    }));
+    setSuggestions(newSuggestions);
+  };
+
+  useEffect(() => {
+    const onMount = async () => {
+      const data = await db.getCollection("squads");
+      handleData(data);
+      return () => 0;
+      //.catch(error => console.error(error)),
+    };
+    onMount();
+  }, []);
 
   const [description, setDescription] = useState("");
   const [completed, setCompleted] = useState("");
@@ -63,21 +72,27 @@ const AddItem = props => {
   };
 
   const validateCompleted = newValue => {
-    var newNumber = parseInt(newValue);
+    let newNumber = parseInt(newValue);
+    let ok = false;
     if (newNumber >= 0 && newNumber <= 100) {
       setCompletedError(null);
+      ok = true;
     } else {
       setCompletedError("Value must be between 0 and 100");
     }
     setCompleted(newValue);
+    return ok;
   };
   const validateTags = newTags => {
+    let ok = false;
     if (newTags && newTags.length > 0) {
+      ok = true;
       setTagsError(null);
     } else {
       setTagsError("Select one or more tags");
     }
     setTags(newTags);
+    return ok;
   };
 
   const handleSubmit = e => {

@@ -19,9 +19,13 @@ import DialogContent from "@material-ui/core/DialogContent";
 import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import { Link as RouterLink, withRouter } from "react-router-dom";
-import { Tooltip, CircularProgress, Grid } from "@material-ui/core";
+import { Tooltip, CircularProgress } from "@material-ui/core";
 
 import db from "./Firebase";
+
+const AdapterLink = React.forwardRef((props, ref) => (
+  <RouterLink innerRef={ref} {...props} />
+));
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -45,7 +49,7 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-const SquadBar = withRouter(({ id, squad, history, showMessage }) => {
+const SquadBar = ({ id, squad, showMessage, history }) => {
   const [readOnly, setReadOnly] = useState(true);
   const [name, setName] = useState(squad.name);
   const [color, setColor] = useState(squad.color);
@@ -87,6 +91,7 @@ const SquadBar = withRouter(({ id, squad, history, showMessage }) => {
       db.editDocument("squads", id, { name, color, location })
         .then(() => {
           showMessage("Squad successfully updated!", "success");
+          document.title = "Squad " + name;
           restoreNormality();
         })
         .catch(error => {
@@ -127,7 +132,7 @@ const SquadBar = withRouter(({ id, squad, history, showMessage }) => {
       >
         <Toolbar>
           <IconButton
-            component={RouterLink}
+            component={AdapterLink}
             to="/"
             edge="start"
             className={classes.marginRight}
@@ -243,6 +248,6 @@ const SquadBar = withRouter(({ id, squad, history, showMessage }) => {
       </Dialog>
     </div>
   );
-});
+};
 
-export default SquadBar;
+export default withRouter(SquadBar);

@@ -71,9 +71,9 @@ const GeneralBar = withRouter(({ squads, history }) => {
       location: "Nowhere, Neverland",
       tasks: []
     };
-    db.addDocument("squads", newSquad, id => {
+    db.addDocument("squads", newSquad).then(docRef => {
       setLoading(false);
-      history.push("/squads/" + id);
+      history.push("/squads/" + docRef.id);
     });
   };
 
