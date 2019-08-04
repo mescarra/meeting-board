@@ -1,9 +1,9 @@
-import React, { useState } from "react";
-import GeneralBoard from "./GeneralBoard";
-import SquadBoard from "./SquadBoard";
-import { BrowserRouter as Router, Route } from "react-router-dom";
+import React from 'react';
+import GeneralBoard from './GeneralBoard';
+import SquadBoard from './SquadBoard';
+import { BrowserRouter as Router, Route } from 'react-router-dom';
 
-const App = props => {
+const App = () => {
   return (
     <Router>
       <Route path="/" exact component={GeneralBoard} />

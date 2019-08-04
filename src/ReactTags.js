@@ -1,14 +1,14 @@
-import React from "react";
-import PropTypes from "prop-types";
-import clsx from "clsx";
-import CreatableSelect from "react-select/creatable";
-import { emphasize, makeStyles, useTheme } from "@material-ui/core/styles";
-import Typography from "@material-ui/core/Typography";
-import TextField from "@material-ui/core/TextField";
-import Paper from "@material-ui/core/Paper";
-import Chip from "@material-ui/core/Chip";
-import MenuItem from "@material-ui/core/MenuItem";
-import CancelIcon from "@material-ui/icons/Cancel";
+import React from 'react';
+import PropTypes from 'prop-types';
+import clsx from 'clsx';
+import CreatableSelect from 'react-select/creatable';
+import { emphasize, makeStyles, useTheme } from '@material-ui/core/styles';
+import Typography from '@material-ui/core/Typography';
+import TextField from '@material-ui/core/TextField';
+import Paper from '@material-ui/core/Paper';
+import Chip from '@material-ui/core/Chip';
+import MenuItem from '@material-ui/core/MenuItem';
+import CancelIcon from '@material-ui/icons/Cancel';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -16,24 +16,24 @@ const useStyles = makeStyles(theme => ({
     height: 250
   },
   input: {
-    display: "flex",
+    display: 'flex',
     padding: 0,
-    height: "auto",
+    height: 'auto',
     minWidth: 300
   },
   valueContainer: {
-    display: "flex",
-    flexWrap: "wrap",
+    display: 'flex',
+    flexWrap: 'wrap',
     flex: 1,
-    alignItems: "center",
-    overflow: "hidden"
+    alignItems: 'center',
+    overflow: 'hidden'
   },
   chip: {
     margin: theme.spacing(0.5, 0.25)
   },
   chipFocused: {
     backgroundColor: emphasize(
-      theme.palette.type === "light"
+      theme.palette.type === 'light'
         ? theme.palette.grey[300]
         : theme.palette.grey[700],
       0.08
@@ -46,13 +46,13 @@ const useStyles = makeStyles(theme => ({
     fontSize: 16
   },
   placeholder: {
-    position: "absolute",
+    position: 'absolute',
     left: 2,
     bottom: 6,
     fontSize: 16
   },
   paper: {
-    position: "absolute",
+    position: 'absolute',
     zIndex: 1,
     marginTop: theme.spacing(1),
     left: 0,
@@ -330,8 +330,8 @@ export default function ReactTags(props) {
     input: base => ({
       ...base,
       color: theme.palette.text.primary,
-      "& input": {
-        font: "inherit"
+      '& input': {
+        font: 'inherit'
       }
     })
   };
@@ -342,7 +342,7 @@ export default function ReactTags(props) {
       styles={selectStyles}
       inputId="react-select-multiple"
       TextFieldProps={{
-        label: "Tags",
+        label: 'Tags',
         helperText: props.label,
         required: true,
         error: Boolean(props.error)

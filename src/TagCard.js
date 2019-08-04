@@ -1,17 +1,17 @@
-import React, { useState } from "react";
-import { makeStyles } from "@material-ui/core/styles";
-import Card from "@material-ui/core/Card";
-import CardContent from "@material-ui/core/CardContent";
-import Typography from "@material-ui/core/Typography";
-import ExpandableList from "./ExpandableList";
-import CardActions from "@material-ui/core/CardActions";
-import Button from "@material-ui/core/Button";
+import React, { useState } from 'react';
+import { makeStyles } from '@material-ui/core/styles';
+import Card from '@material-ui/core/Card';
+import CardContent from '@material-ui/core/CardContent';
+import Typography from '@material-ui/core/Typography';
+import ExpandableList from './ExpandableList';
+import CardActions from '@material-ui/core/CardActions';
+import Button from '@material-ui/core/Button';
 
 const useStyles = makeStyles({
   card: {
     width: 275,
-    display: "inline-block",
-    margin: "20px"
+    display: 'inline-block',
+    margin: '20px'
   },
   title: {
     fontSize: 14
@@ -33,7 +33,7 @@ const TagCard = ({ tagName, tasksPerSquad }) => {
     <Card
       className={classes.card}
       style={
-        collab ? { backgroundColor: "#eee" } : { backgroundColor: "white" }
+        collab ? { backgroundColor: '#eee' } : { backgroundColor: 'white' }
       }
     >
       <CardContent>
@@ -54,7 +54,7 @@ const TagCard = ({ tagName, tasksPerSquad }) => {
       </CardContent>
       <CardActions>
         <Button onClick={() => setCollab(!collab)} size="small">
-          {collab ? "Unmark" : "Mark as collaborated"}
+          {collab ? 'Unmark' : 'Mark as collaborated'}
         </Button>
       </CardActions>
     </Card>

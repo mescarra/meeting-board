@@ -1,17 +1,16 @@
-import React from "react";
-import PropTypes from "prop-types";
-import clsx from "clsx";
-import Button from "@material-ui/core/Button";
-import CheckCircleIcon from "@material-ui/icons/CheckCircle";
-import ErrorIcon from "@material-ui/icons/Error";
-import InfoIcon from "@material-ui/icons/Info";
-import CloseIcon from "@material-ui/icons/Close";
-import { amber, green } from "@material-ui/core/colors";
-import IconButton from "@material-ui/core/IconButton";
-import Snackbar from "@material-ui/core/Snackbar";
-import SnackbarContent from "@material-ui/core/SnackbarContent";
-import WarningIcon from "@material-ui/icons/Warning";
-import { makeStyles } from "@material-ui/core/styles";
+import React from 'react';
+import PropTypes from 'prop-types';
+import clsx from 'clsx';
+import CheckCircleIcon from '@material-ui/icons/CheckCircle';
+import ErrorIcon from '@material-ui/icons/Error';
+import InfoIcon from '@material-ui/icons/Info';
+import CloseIcon from '@material-ui/icons/Close';
+import { amber, green } from '@material-ui/core/colors';
+import IconButton from '@material-ui/core/IconButton';
+import Snackbar from '@material-ui/core/Snackbar';
+import SnackbarContent from '@material-ui/core/SnackbarContent';
+import WarningIcon from '@material-ui/icons/Warning';
+import { makeStyles } from '@material-ui/core/styles';
 
 const variantIcon = {
   success: CheckCircleIcon,
@@ -41,8 +40,8 @@ const useStyles1 = makeStyles(theme => ({
     marginRight: theme.spacing(1)
   },
   message: {
-    display: "flex",
-    alignItems: "center"
+    display: 'flex',
+    alignItems: 'center'
   }
 }));
 
@@ -80,21 +79,15 @@ MySnackbarContentWrapper.propTypes = {
   className: PropTypes.string,
   message: PropTypes.string,
   onClose: PropTypes.func,
-  variant: PropTypes.oneOf(["error", "info", "success", "warning"]).isRequired
+  variant: PropTypes.oneOf(['error', 'info', 'success', 'warning']).isRequired
 };
-
-const useStyles2 = makeStyles(theme => ({
-  margin: {
-    margin: theme.spacing(1)
-  }
-}));
 
 export default function TempMessage({ open, handleClose, variant, message }) {
   return (
     <Snackbar
       anchorOrigin={{
-        vertical: "bottom",
-        horizontal: "left"
+        vertical: 'bottom',
+        horizontal: 'left'
       }}
       open={open}
       autoHideDuration={6000}

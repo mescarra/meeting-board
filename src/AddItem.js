@@ -1,18 +1,19 @@
-import React, { useState, useEffect } from "react";
-import { makeStyles } from "@material-ui/core/styles";
-import { FormHelperText, TextField } from "@material-ui/core";
-import Input from "@material-ui/core/Input";
-import FormControl from "@material-ui/core/FormControl";
-import InputLabel from "@material-ui/core/InputLabel";
-import Grid from "@material-ui/core/Grid";
-import Button from "@material-ui/core/Button";
-import ReactTags from "./ReactTags";
+import React, { useState, useEffect } from 'react';
+import { makeStyles } from '@material-ui/core/styles';
+import {
+  TextField,
+  FormControl,
+  Grid,
+  Button,
+  CircularProgress
+} from '@material-ui/core';
+import ReactTags from './ReactTags';
 
-import db from "./Firebase";
+import db from './Firebase';
 
 const useStyles = makeStyles(theme => ({
   root: {
-    display: "block"
+    display: 'block'
   },
   formControl: {
     margin: theme.spacing(1)
@@ -22,16 +23,23 @@ const useStyles = makeStyles(theme => ({
   },
   paper: {
     padding: theme.spacing(2),
-    margin: "auto",
-    maxWidth: "400px"
+    margin: 'auto',
+    maxWidth: '400px'
   }
 }));
 
-const AddItem = props => {
+const AddItem = ({ onAddition, showMessage, addingItem }) => {
   const classes = useStyles();
   const [suggestions, setSuggestions] = useState(null);
+  const [description, setDescription] = useState('');
+  const [completed, setCompleted] = useState('');
+  const [completedError, setCompletedError] = useState(null);
+  const [tags, setTags] = useState([]);
+  const [tagsError, setTagsError] = useState(null);
 
-  const handleData = snap => {
+  /* Tags fill and filter */
+
+  const fillTagSuggestions = snap => {
     let squads = [];
     snap.forEach(x => squads.push({ ...x.data(), id: x.id }));
 
@@ -48,28 +56,14 @@ const AddItem = props => {
     setSuggestions(newSuggestions);
   };
 
-  useEffect(() => {
-    const onMount = async () => {
-      const data = await db.getCollection("squads");
-      handleData(data);
-      return () => 0;
-      //.catch(error => console.error(error)),
-    };
-    onMount();
-  }, []);
-
-  const [description, setDescription] = useState("");
-  const [completed, setCompleted] = useState("");
-  const [completedError, setCompletedError] = useState(null);
-  const [tags, setTags] = useState([]);
-  const [tagsError, setTagsError] = useState(null);
-
   const suggestionsFilter = (item, query) => {
     return (
       item.name.startsWith(query) &&
       tags.filter(x => x.id === item.id).length === 0
     );
   };
+
+  /* Field validations */
 
   const validateCompleted = newValue => {
     let newNumber = parseInt(newValue);
@@ -78,18 +72,19 @@ const AddItem = props => {
       setCompletedError(null);
       ok = true;
     } else {
-      setCompletedError("Value must be between 0 and 100");
+      setCompletedError('Value must be between 0 and 100');
     }
     setCompleted(newValue);
     return ok;
   };
+
   const validateTags = newTags => {
     let ok = false;
     if (newTags && newTags.length > 0) {
       ok = true;
       setTagsError(null);
     } else {
-      setTagsError("Select one or more tags");
+      setTagsError('Select one or more tags');
     }
     setTags(newTags);
     return ok;
@@ -99,19 +94,23 @@ const AddItem = props => {
     e.preventDefault();
     if (validateCompleted(completed) && validateTags(tags)) {
       let csv = tags.map(x => x.label).toString();
-      if (
-        props.onAddition({
-          name: description,
-          tags: csv,
-          completed: parseInt(completed)
-        })
-      ) {
-        setDescription("");
-        setCompleted("");
-        setTags([]);
-      }
+      onAddition({
+        name: description,
+        tags: csv,
+        completed: parseInt(completed)
+      });
+      setDescription('');
+      setCompleted('');
+      setTags([]);
     }
   };
+
+  useEffect(() => {
+    db.onSnapshot('squads', fillTagSuggestions, error => {
+      showMessage('Error getting squads: ' + error.message, 'error');
+      console.error(error);
+    });
+  }, []);
 
   return (
     suggestions && (
@@ -134,7 +133,7 @@ const AddItem = props => {
               <ReactTags
                 value={tags}
                 error={tagsError}
-                label={tagsError ? tagsError : "Relevant work areas"}
+                label={tagsError ? tagsError : 'Relevant work areas'}
                 handleChange={validateTags}
                 suggestions={suggestions}
                 suggestionsFilter={suggestionsFilter}
@@ -148,13 +147,13 @@ const AddItem = props => {
                 label="Completed"
                 required
                 InputProps={{
-                  type: "number"
+                  type: 'number'
                 }}
                 value={completed}
                 helperText={
                   completedError
                     ? completedError
-                    : "Approximate completed percentage"
+                    : 'Approximate completed percentage'
                 }
                 error={Boolean(completedError)}
                 onChange={e => validateCompleted(e.target.value)}
@@ -162,9 +161,13 @@ const AddItem = props => {
             </FormControl>
           </Grid>
           <Grid item lg={3}>
-            <Button variant="contained" color="primary" type="submit">
-              Add new task
-            </Button>
+            {addingItem ? (
+              <CircularProgress color="secondary" />
+            ) : (
+              <Button variant="contained" color="primary" type="submit">
+                Add new task
+              </Button>
+            )}
           </Grid>
         </Grid>
       </form>

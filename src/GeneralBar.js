@@ -1,48 +1,45 @@
-import React, { useState } from "react";
-import { makeStyles } from "@material-ui/core/styles";
-import AppBar from "@material-ui/core/AppBar";
-import Toolbar from "@material-ui/core/Toolbar";
-import Typography from "@material-ui/core/Typography";
-import IconButton from "@material-ui/core/IconButton";
-import MenuIcon from "@material-ui/icons/MoreVert";
-import AddIcon from "@material-ui/icons/Add";
-import Menu from "@material-ui/core/Menu";
-import { withStyles } from "@material-ui/core/styles";
+import React, { useState } from 'react';
+import { makeStyles, withStyles } from '@material-ui/core/styles';
 import {
+  AppBar,
+  Toolbar,
+  Typography,
+  IconButton,
+  Menu,
   Divider,
   Tooltip,
   CircularProgress,
   List,
   ListItem,
   ListItemText
-} from "@material-ui/core";
-import { Link as RouterLink, withRouter } from "react-router-dom";
-import db from "./Firebase";
+} from '@material-ui/core';
+import MenuIcon from '@material-ui/icons/MoreVert';
+import AddIcon from '@material-ui/icons/Add';
+import { Link as RouterLink, withRouter } from 'react-router-dom';
+
+import db from './Firebase';
 
 const StyledMenu = withStyles({
   paper: {
-    border: "1px solid #d3d4d5"
+    border: '1px solid #d3d4d5'
   }
 })(props => (
   <Menu
     elevation={0}
     getContentAnchorEl={null}
     anchorOrigin={{
-      vertical: "bottom",
-      horizontal: "right"
+      vertical: 'bottom',
+      horizontal: 'right'
     }}
     transformOrigin={{
-      vertical: "top",
-      horizontal: "right"
+      vertical: 'top',
+      horizontal: 'right'
     }}
     {...props}
   />
 ));
 
 const useStyles = makeStyles(theme => ({
-  menuButton: {
-    marginRight: theme.spacing(2)
-  },
   title: {
     flexGrow: 1
   },
@@ -51,10 +48,11 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-const GeneralBar = withRouter(({ squads, history }) => {
+const GeneralBar = ({ squads, showMessage, history }) => {
   const classes = useStyles();
   const [anchorEl, setAnchorEl] = useState(null);
   const [loading, setLoading] = useState(false);
+
   const handleClose = () => {
     setAnchorEl(null);
   };
@@ -66,15 +64,20 @@ const GeneralBar = withRouter(({ squads, history }) => {
   const handleAddNew = () => {
     setLoading(true);
     const newSquad = {
-      name: "New Squad",
-      color: "#000000",
-      location: "Nowhere, Neverland",
+      name: 'New Squad',
+      color: '#000000',
+      location: 'Nowhere, Neverland',
       tasks: []
     };
-    db.addDocument("squads", newSquad).then(docRef => {
-      setLoading(false);
-      history.push("/squads/" + docRef.id);
-    });
+    db.addDocument('squads', newSquad)
+      .then(docRef => {
+        setLoading(false);
+        history.push('/squads/' + docRef.id);
+      })
+      .catch(error => {
+        setLoading(false);
+        showMessage('Error adding squad: ' + error.message);
+      });
   };
 
   return (
@@ -101,7 +104,7 @@ const GeneralBar = withRouter(({ squads, history }) => {
                 key={sq.id}
                 button
                 component={RouterLink}
-                to={"/squads/" + sq.id}
+                to={'/squads/' + sq.id}
               >
                 <ListItemText>{sq.name}</ListItemText>
               </ListItem>
@@ -109,12 +112,7 @@ const GeneralBar = withRouter(({ squads, history }) => {
           </List>
         </StyledMenu>
         <Tooltip title="Squad list">
-          <IconButton
-            className={classes.menuButton}
-            color="inherit"
-            aria-label="Menu"
-            onClick={handleClick}
-          >
+          <IconButton color="inherit" aria-label="Menu" onClick={handleClick}>
             <MenuIcon />
           </IconButton>
         </Tooltip>
@@ -134,6 +132,6 @@ const GeneralBar = withRouter(({ squads, history }) => {
       </Toolbar>
     </AppBar>
   );
-});
+};
 
-export default GeneralBar;
+export default withRouter(GeneralBar);

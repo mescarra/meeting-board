@@ -1,5 +1,5 @@
-import { DB_CONFIG } from "./config";
-import firebase from "firebase";
+import { DB_CONFIG } from './config';
+import firebase from 'firebase';
 
 class Firebase {
   constructor() {
@@ -17,6 +17,10 @@ class Firebase {
 
   getCollection(collection) {
     return this.db.collection(collection).get();
+  }
+
+  onSnapshot(collection, okCallback, errorCallback) {
+    return this.db.collection(collection).onSnapshot(okCallback, errorCallback);
   }
 
   addDocument(collection, doc) {

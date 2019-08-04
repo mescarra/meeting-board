@@ -1,18 +1,18 @@
-import React, { useState } from "react";
-import { makeStyles } from "@material-ui/core/styles";
-import List from "@material-ui/core/List";
-import ListItem from "@material-ui/core/ListItem";
-import ListItemText from "@material-ui/core/ListItemText";
-import Collapse from "@material-ui/core/Collapse";
-import ExpandLess from "@material-ui/icons/ExpandLess";
-import ExpandMore from "@material-ui/icons/ExpandMore";
-import ListItemIcon from "@material-ui/core/ListItemIcon";
-import SendIcon from "@material-ui/icons/Send";
-import LinearProgress from "@material-ui/core/LinearProgress";
+import React, { useState } from 'react';
+import { makeStyles } from '@material-ui/core/styles';
+import List from '@material-ui/core/List';
+import ListItem from '@material-ui/core/ListItem';
+import ListItemText from '@material-ui/core/ListItemText';
+import Collapse from '@material-ui/core/Collapse';
+import ExpandLess from '@material-ui/icons/ExpandLess';
+import ExpandMore from '@material-ui/icons/ExpandMore';
+import ListItemIcon from '@material-ui/core/ListItemIcon';
+import SendIcon from '@material-ui/icons/Send';
+import LinearProgress from '@material-ui/core/LinearProgress';
 
 const useStyles = makeStyles(theme => ({
   root: {
-    width: "100%",
+    width: '100%',
     maxWidth: 360,
     paddingBottom: theme.spacing(1)
   },
@@ -21,8 +21,8 @@ const useStyles = makeStyles(theme => ({
     paddingBottom: theme.spacing(0)
   },
   progressBar: {
-    minWidth: "50px",
-    marginLeft: "10px"
+    minWidth: '50px',
+    marginLeft: '10px'
   }
 }));
 
@@ -51,7 +51,7 @@ const ExpandableList = props => {
           <List component="div" disablePadding>
             <ListItem
               button
-              onClick={() => console.log("do something")}
+              onClick={() => console.log('do something')}
               className={classes.nested}
             >
               <ListItemText secondary={task.name} />

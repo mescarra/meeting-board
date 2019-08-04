@@ -1,27 +1,26 @@
-import React, { useState } from "react";
-import { makeStyles } from "@material-ui/core/styles";
-import AppBar from "@material-ui/core/AppBar";
-import Toolbar from "@material-ui/core/Toolbar";
-import IconButton from "@material-ui/core/IconButton";
-import MenuIcon from "@material-ui/icons/ArrowBack";
-import EditIcon from "@material-ui/icons/Edit";
-import CheckIcon from "@material-ui/icons/Check";
-import DeleteIcon from "@material-ui/icons/Delete";
-import ColorIcon from "@material-ui/icons/ColorLens";
-import TextField from "@material-ui/core/TextField";
-import { ChromePicker } from "react-color";
-import Popover from "@material-ui/core/Popover";
+import React, { useState } from 'react';
+import { makeStyles } from '@material-ui/core/styles';
+import {
+  AppBar,
+  CircularProgress,
+  IconButton,
+  Popover,
+  TextField,
+  Toolbar,
+  Tooltip
+} from '@material-ui/core';
 
-import Button from "@material-ui/core/Button";
-import Dialog from "@material-ui/core/Dialog";
-import DialogActions from "@material-ui/core/DialogActions";
-import DialogContent from "@material-ui/core/DialogContent";
-import DialogContentText from "@material-ui/core/DialogContentText";
-import DialogTitle from "@material-ui/core/DialogTitle";
-import { Link as RouterLink, withRouter } from "react-router-dom";
-import { Tooltip, CircularProgress } from "@material-ui/core";
+import MenuIcon from '@material-ui/icons/ArrowBack';
+import EditIcon from '@material-ui/icons/Edit';
+import CheckIcon from '@material-ui/icons/Check';
+import DeleteIcon from '@material-ui/icons/Delete';
+import ColorIcon from '@material-ui/icons/ColorLens';
 
-import db from "./Firebase";
+import { ChromePicker } from 'react-color';
+import { Link as RouterLink, withRouter } from 'react-router-dom';
+
+import db from './Firebase';
+import DeleteDialog from './DeleteDialog';
 
 const AdapterLink = React.forwardRef((props, ref) => (
   <RouterLink innerRef={ref} {...props} />
@@ -44,19 +43,24 @@ const useStyles = makeStyles(theme => ({
     marginBottom: theme.spacing(2)
   },
   card: {
-    width: "fit-content",
+    width: 'fit-content',
     margin: theme.spacing(2)
   }
 }));
 
 const SquadBar = ({ id, squad, showMessage, history }) => {
-  const [readOnly, setReadOnly] = useState(true);
+  const classes = useStyles();
+
   const [name, setName] = useState(squad.name);
   const [color, setColor] = useState(squad.color);
   const [location, setLocation] = useState(squad.location);
   const [loading, setLoading] = useState(false);
+  const [readOnly, setReadOnly] = useState(true);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [anchorEl, setAnchorEl] = useState(null);
 
-  const classes = useStyles();
+  const open = Boolean(anchorEl);
+  const popoverId = open ? 'simple-popover' : undefined;
 
   const inputProps = {
     disableUnderline: true,
@@ -68,8 +72,6 @@ const SquadBar = ({ id, squad, showMessage, history }) => {
       setColor(newColor.hex);
     }
   };
-
-  const [anchorEl, setAnchorEl] = useState(null);
 
   const handleOpenPopover = event => {
     setAnchorEl(event.currentTarget);
@@ -88,15 +90,15 @@ const SquadBar = ({ id, squad, showMessage, history }) => {
   const handleUpdate = () => {
     if (!readOnly) {
       setLoading(true);
-      db.editDocument("squads", id, { name, color, location })
+      db.editDocument('squads', id, { name, color, location })
         .then(() => {
-          showMessage("Squad successfully updated!", "success");
-          document.title = "Squad " + name;
+          showMessage('Squad successfully updated!', 'success');
+          document.title = 'Squad ' + name;
           restoreNormality();
         })
         .catch(error => {
-          showMessage("Error updating squad", "error");
-          console.error("Error updating squad: ", error);
+          showMessage('Error updating squad', 'error');
+          console.error('Error updating squad: ', error);
           restoreNormality();
         });
     } else {
@@ -106,22 +108,17 @@ const SquadBar = ({ id, squad, showMessage, history }) => {
 
   const handleDelete = () => {
     setLoading(true);
-    db.deleteDocument("squads", id)
+    db.deleteDocument('squads', id)
       .then(() => {
         restoreNormality();
-        history.push("/");
+        history.push('/');
       })
       .catch(error => {
-        showMessage("Error deleting squad", "error");
-        console.error("Error deleting squad: ", error);
+        showMessage('Error deleting squad', 'error');
+        console.error('Error deleting squad: ', error);
         restoreNormality();
       });
   };
-
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-
-  const open = Boolean(anchorEl);
-  const popoverId = open ? "simple-popover" : undefined;
 
   return (
     <div className={classes.root}>
@@ -146,7 +143,7 @@ const SquadBar = ({ id, squad, showMessage, history }) => {
             onChange={e => setName(e.target.value)}
             InputProps={{
               ...inputProps,
-              style: { color: "inherit", fontSize: "1.2em" }
+              style: { color: 'inherit', fontSize: '1.2em' }
             }}
           />
           <span className={classes.title} />
@@ -156,9 +153,9 @@ const SquadBar = ({ id, squad, showMessage, history }) => {
             onChange={e => setLocation(e.target.value)}
             InputProps={{
               ...inputProps,
-              style: { color: "inherit", fontSize: "0.8em" }
+              style: { color: 'inherit', fontSize: '0.8em' }
             }}
-            inputProps={{ style: { textAlign: "right" } }}
+            inputProps={{ style: { textAlign: 'right' } }}
           />
           {readOnly ? null : (
             <IconButton
@@ -176,17 +173,17 @@ const SquadBar = ({ id, squad, showMessage, history }) => {
             anchorEl={anchorEl}
             onClose={handleClosePopover}
             anchorOrigin={{
-              vertical: "bottom",
-              horizontal: "center"
+              vertical: 'bottom',
+              horizontal: 'center'
             }}
             transformOrigin={{
-              vertical: "top",
-              horizontal: "center"
+              vertical: 'top',
+              horizontal: 'center'
             }}
           >
             <ChromePicker color={color} onChange={handleColorChange} />
           </Popover>
-          <Tooltip title={readOnly ? "Edit squad" : "Verify changes"}>
+          <Tooltip title={readOnly ? 'Edit squad' : 'Verify changes'}>
             <IconButton
               onClick={handleUpdate}
               color="inherit"
@@ -213,39 +210,12 @@ const SquadBar = ({ id, squad, showMessage, history }) => {
           </Tooltip>
         </Toolbar>
       </AppBar>
-
-      <Dialog
+      <DeleteDialog
         open={deleteDialogOpen}
-        onClose={() => setDeleteDialogOpen(false)}
-        aria-labelledby="alert-dialog-title"
-        aria-describedby="alert-dialog-description"
-      >
-        <DialogTitle id="alert-dialog-title">
-          {"Do you really want to delete this squad?"}
-        </DialogTitle>
-        <DialogContent>
-          {loading ? (
-            <CircularProgress color="secondary" />
-          ) : (
-            <DialogContentText id="alert-dialog-description">
-              Deleting this squad will remove related tasks and properties from
-              the database. Are you sure you want to continue?
-            </DialogContentText>
-          )}
-        </DialogContent>
-        <DialogActions>
-          <Button
-            onClick={() => setDeleteDialogOpen(false)}
-            color="secondary"
-            autoFocus
-          >
-            Cancel
-          </Button>
-          <Button onClick={handleDelete} color="primary">
-            Delete
-          </Button>
-        </DialogActions>
-      </Dialog>
+        handleClose={() => setDeleteDialogOpen(false)}
+        handleDelete={handleDelete}
+        loading={loading}
+      />
     </div>
   );
 };

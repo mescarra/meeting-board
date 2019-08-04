@@ -1,6 +1,6 @@
-import React, { useState } from "react";
-import CircularProgress from "@material-ui/core/CircularProgress";
-import Grid from "@material-ui/core/Grid";
+import React from 'react';
+import CircularProgress from '@material-ui/core/CircularProgress';
+import Grid from '@material-ui/core/Grid';
 
 const LoadingPage = () => {
   return (
@@ -10,7 +10,7 @@ const LoadingPage = () => {
       direction="column"
       alignItems="center"
       justify="center"
-      style={{ minHeight: "100vh" }}
+      style={{ minHeight: '100vh' }}
     >
       <Grid item xs={3}>
         <CircularProgress />
