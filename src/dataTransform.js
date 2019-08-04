@@ -34,8 +34,7 @@ const squadDataToTagData = data => {
       }
       if (newTasks.length > 0)
         newSquads.push({
-          name: squad.name,
-          color: squad.color,
+          ...squad,
           tasks: newTasks
         });
     }

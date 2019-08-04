@@ -11,7 +11,8 @@ const useStyles = makeStyles({
   card: {
     width: 275,
     display: 'inline-block',
-    margin: '20px'
+    verticalAlign: 'top',
+    margin: 20
   },
   title: {
     fontSize: 14
@@ -41,13 +42,15 @@ const TagCard = ({ tagName, tasksPerSquad }) => {
           {tagName}
         </Typography>
         <Typography className={classes.pos} color="textSecondary">
-          {taskCount} Tasks | {squadCount} Squads
+          {taskCount} Task{taskCount === 1 ? '' : 's'} | {squadCount} Squad
+          {squadCount === 1 ? '' : 's'}
         </Typography>
         {tasksPerSquad.map((squad, key) => (
           <ExpandableList
             key={key}
-            rootName={squad.name}
+            title={squad.name}
             bgColor={squad.color}
+            subtitle={squad.location}
             tasks={squad.tasks}
           />
         ))}

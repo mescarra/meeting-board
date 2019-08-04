@@ -1,14 +1,16 @@
 import React, { useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import List from '@material-ui/core/List';
-import ListItem from '@material-ui/core/ListItem';
-import ListItemText from '@material-ui/core/ListItemText';
-import Collapse from '@material-ui/core/Collapse';
+import {
+  List,
+  ListItem,
+  ListItemText,
+  Collapse,
+  ListItemIcon,
+  LinearProgress
+} from '@material-ui/core';
 import ExpandLess from '@material-ui/icons/ExpandLess';
 import ExpandMore from '@material-ui/icons/ExpandMore';
-import ListItemIcon from '@material-ui/core/ListItemIcon';
 import SendIcon from '@material-ui/icons/Send';
-import LinearProgress from '@material-ui/core/LinearProgress';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -21,8 +23,8 @@ const useStyles = makeStyles(theme => ({
     paddingBottom: theme.spacing(0)
   },
   progressBar: {
-    minWidth: '50px',
-    marginLeft: '10px'
+    minWidth: 50,
+    marginLeft: 20
   }
 }));
 
@@ -36,13 +38,18 @@ const ExpandableList = props => {
 
   return (
     <List className={classes.root}>
-      <ListItem button onClick={handleClick}>
+      <ListItem dense button onClick={handleClick}>
         <ListItemIcon>
           <SendIcon />
         </ListItemIcon>
         <ListItemText
-          primary={props.rootName}
-          style={{ color: props.bgColor }}
+          primary={props.title}
+          secondary={props.subtitle}
+          primaryTypographyProps={{
+            variant: 'h6',
+            component: 'h3',
+            style: { color: props.bgColor }
+          }}
         />
         {open ? <ExpandLess /> : <ExpandMore />}
       </ListItem>
@@ -54,7 +61,10 @@ const ExpandableList = props => {
               onClick={() => console.log('do something')}
               className={classes.nested}
             >
-              <ListItemText secondary={task.name} />
+              <ListItemText
+                secondary={task.name}
+                secondaryTypographyProps={{ color: 'textPrimary' }}
+              />
               {task.completed ? (
                 <LinearProgress
                   className={classes.progressBar}

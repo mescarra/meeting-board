@@ -106,10 +106,12 @@ const AddItem = ({ onAddition, showMessage, addingItem }) => {
   };
 
   useEffect(() => {
-    db.onSnapshot('squads', fillTagSuggestions, error => {
+    const unsubscribe = db.onSnapshot('squads', fillTagSuggestions, error => {
       showMessage('Error getting squads: ' + error.message, 'error');
       console.error(error);
     });
+
+    return unsubscribe;
   }, []);
 
   return (

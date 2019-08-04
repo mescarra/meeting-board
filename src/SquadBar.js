@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import {
   AppBar,
@@ -58,6 +58,7 @@ const SquadBar = ({ id, squad, showMessage, history }) => {
   const [readOnly, setReadOnly] = useState(true);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
+  const squadNameRef = useRef(null);
 
   const open = Boolean(anchorEl);
   const popoverId = open ? 'simple-popover' : undefined;
@@ -103,6 +104,7 @@ const SquadBar = ({ id, squad, showMessage, history }) => {
         });
     } else {
       setReadOnly(false);
+      squadNameRef.current.focus();
     }
   };
 
@@ -118,6 +120,12 @@ const SquadBar = ({ id, squad, showMessage, history }) => {
         console.error('Error deleting squad: ', error);
         restoreNormality();
       });
+  };
+
+  const handleEnter = event => {
+    if (event.key == 'Enter') {
+      handleUpdate();
+    }
   };
 
   return (
@@ -141,9 +149,13 @@ const SquadBar = ({ id, squad, showMessage, history }) => {
           <TextField
             value={name}
             onChange={e => setName(e.target.value)}
+            onKeyPress={handleEnter}
             InputProps={{
               ...inputProps,
               style: { color: 'inherit', fontSize: '1.2em' }
+            }}
+            inputProps={{
+              ref: squadNameRef
             }}
           />
           <span className={classes.title} />
@@ -151,6 +163,7 @@ const SquadBar = ({ id, squad, showMessage, history }) => {
           <TextField
             value={location}
             onChange={e => setLocation(e.target.value)}
+            onKeyPress={handleEnter}
             InputProps={{
               ...inputProps,
               style: { color: 'inherit', fontSize: '0.8em' }
