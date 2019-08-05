@@ -6,6 +6,7 @@
   ],
   "plugins": ["react", "prettier"],
   "env": {
+    "jest": true,
     "browser": true,
     "es6": true
   },
