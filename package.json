@@ -93,10 +93,10 @@
       "src/**/*.{js,jsx,ts,tsx}",
       "!src/**/*.d.ts"
     ],
+    "setupFilesAfterEnv": ["./src/setupTests.js"],
     "setupFiles": [
       "react-app-polyfill/jsdom"
     ],
-    "setupFilesAfterEnv": [],
     "testMatch": [
       "<rootDir>/src/**/__tests__/**/*.{js,jsx,ts,tsx}",
       "<rootDir>/src/**/*.{spec,test}.{js,jsx,ts,tsx}"
@@ -138,5 +138,9 @@
       "react-app"
     ]
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "enzyme": "^3.10.0",
+    "enzyme-adapter-react-16": "^1.14.0",
+    "react-test-renderer": "^16.8.6"
+  }
 }
