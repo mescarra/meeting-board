@@ -28,22 +28,24 @@ const GeneralBoard = () => {
   useEffect(() => {
     timerId = setTimeout(timeout, LOADING_TIME_LIMIT);
 
-    const onMount = async () => {
-      try {
-        const snap = await db.getCollection('squads');
+    const unsubscribe = db.onSnapshot(
+      'squads',
+      snap => {
         clearTimeout(timerId);
         let data = [];
         snap.forEach(x => data.push({ ...x.data(), id: x.id }));
         handleGet(data);
-      } catch (error) {
+      },
+      error => {
+        clearTimeout(timerId);
         setActiveMessage('Error getting squads:', error.message);
         console.error('Error getting squads', error);
       }
+    );
 
-      document.title = 'General board';
-    };
+    document.title = 'General board';
 
-    onMount();
+    return unsubscribe;
   }, []);
 
   return (
